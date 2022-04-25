@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgui
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: postgui
+  template:
+    metadata:
+      {{- with .Values.postgui.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        app: "postgui"
+        app.kubernetes.io/name: postgui
+        {{- include "postgres_stack.labels" . | nindent 8 }}
+        {{- with .Values.postgui.labels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      containers:
+        - name: postgui
+          image: "{{ .Values.images.postgui.image }}:{{ .Values.images.postgui.tag }}"
+          imagePullPolicy: {{ .Values.images.postgui.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 8771
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.postgui.resources | nindent 12 }}
+          stdin: true
+          tty: true
+          volumeMounts:
+            - name: config-volume
+              mountPath: /postgui-app/src/data/config.json
+              subPath: config.json
+      volumes:
+        - name: config-volume
+          configMap: 
+            name: postgui-config

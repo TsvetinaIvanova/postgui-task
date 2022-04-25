@@ -1,0 +1,37 @@
+{{ if .Values.generateSampleData }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: populate-db
+spec:
+  template:
+    spec:
+      containers:
+      - name: psql
+        image: postgres:11.15-bullseye
+        env:
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-admin-password
+              key: password
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: postgres-admin-password
+              key: user
+        - name: NAMESPACE
+          value: {{ .Release.Namespace }}
+        command: ["/bin/sh"]
+        args: 
+          - -c
+          - |
+            apt update && apt install wget -y && wget https://github.com/robconery/dvdrental/raw/master/dvdrental.tar
+            sleep 30
+            psql "postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@postgres.$NAMESPACE.svc.cluster.local:5432" -c "CREATE DATABASE dvdrental;"
+            pg_restore --dbname="postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@postgres.$NAMESPACE.svc.cluster.local:5432/dvdrental" dvdrental.tar
+            exit 0
+
+      restartPolicy: Never
+  backoffLimit: 1
+  {{ end }}

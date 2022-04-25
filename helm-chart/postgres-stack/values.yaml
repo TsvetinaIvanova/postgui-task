@@ -1,0 +1,69 @@
+images:
+  postgres:
+    image: postgres
+    tag: 11.15-bullseye
+    pullPolicy: IfNotPresent
+  postgrest:
+    image: postgrest/postgrest
+    tag: v0.4.4.0
+    pullPolicy: IfNotPresent
+  postgui:
+    image: postgui
+    tag: latest
+    pullPolicy: Never   
+postgresDb:
+  adminUser: postgres
+  adminPassword: UmdqYWs85FcLdQ644Oyv
+  volumeSize: 50Mi
+  volumeName: postgres-volume
+  volumeClaimName: postgres-pvc
+  labels: {}
+  podAnnotations: {}
+  resources: {}
+  dbName: dvdrental
+postgrest:
+  labels: {}
+  podAnnotations: {}
+  resources: {}
+  hostUrl: api.postgui.info
+  ingressAnnotations: {}
+postgui:
+  labels: {}
+  podAnnotations: {}
+  resources: {}
+  hostUrl: postgui.info
+  ingressAnnotations: {}
+  config: |
+    {
+      "databases": [
+        {
+          "title": "DVD Rentals",
+          "url": "http://api.postgui.info",
+          "publicDbAcessType": "read",
+          "foreignKeySearch": true,
+          "primaryKeyFunction": true,
+          "regexSupport": false
+        }
+      ],
+      "logoUrl": null,
+      "seq_column_names": [
+        "alignment_sequence",
+        "nucleotide_sequence",
+        "aminoacid_sequence",
+        "nucleotide_seq",
+        "amino_acid_seq",
+        "nuc_seq",
+        "aa_seq",
+        "dna_seq",
+        "protein_seq",
+        "prot_seq",
+        "n_seq",
+        "p_seq",
+        "a_seq",
+        "seq",
+        "sequence"
+      ],
+      "errorMsg": "ERROR"
+    }
+
+generateSampleData: true #set to true only on first run if sample data is needed

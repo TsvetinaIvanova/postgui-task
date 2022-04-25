@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgui
+  labels:
+    app: postgui
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8771
+  selector:
+    app: postgui

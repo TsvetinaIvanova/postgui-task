@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-db
+spec:
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: postgres
+  template:
+    metadata:
+      {{- with .Values.postgresDb.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+          app: postgres
+          app.kubernetes.io/name: postgres
+          {{- include "postgres_stack.labels" . | nindent 10 }}
+          {{- with .Values.postgresDb.labels }}
+          {{- toYaml . | nindent 10 }}
+          {{- end }}
+    spec:
+      containers:
+        - name: postgres-db
+          image: "{{ .Values.images.postgres.image }}:{{ .Values.images.postgres.tag }}"
+          imagePullPolicy: {{ .Values.images.postgres.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 5432
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.postgresDb.resources | nindent 12 }}
+          env:
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-admin-password
+                  key: password
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-admin-password
+                  key: user
+          volumeMounts:
+              - mountPath: "/var/lib/postgresql/data"
+                name: db-volume
+      volumes:
+          - name: db-volume
+            persistentVolumeClaim:
+              claimName: db-pvc

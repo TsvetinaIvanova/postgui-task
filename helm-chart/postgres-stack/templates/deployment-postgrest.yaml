@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgrest
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: postgrest
+  template:
+    metadata:
+      {{- with .Values.postgrest.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        app: postgrest
+        app.kubernetes.io/name: postgrest
+        {{- include "postgres_stack.labels" . | nindent 8 }}
+        {{- with .Values.postgrest.labels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      containers:
+        - name: postgrest
+          image: "{{ .Values.images.postgrest.image }}:{{ .Values.images.postgrest.tag }}"
+          imagePullPolicy: {{ .Values.images.postgrest.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 3000
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.postgrest.resources | nindent 12 }}
+          env:
+            - name: PGRST_DB_ANON_ROLE
+              value: postgres
+            - name: PGRST_DB_SCHEMA
+              value: public
+            - name: PGRST_DB_URI
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-admin-password
+                  key: url
+          

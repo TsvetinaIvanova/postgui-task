@@ -1,0 +1,21 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: api-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    {{- with .Values.postgrest.ingressAnnotations }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}    
+spec:
+  rules:
+    - host: {{ .Values.postgrest.hostUrl }}
+      http:
+        paths:
+          - path: /.*
+            pathType: Prefix
+            backend:
+              service:
+                name: postgrest
+                port:
+                  number: 3000
