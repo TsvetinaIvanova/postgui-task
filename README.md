@@ -1,5 +1,7 @@
 # PostGUI in Kubernetes
 
+> Take-home task from 2022, kept as submitted. It commits a demo database password in `values.yaml`, passes it to the containers as environment variables, and runs without a `securityContext`. For a later, security-focused deployment, see [secure-k8s-deployment](https://github.com/TsvetinaIvanova/secure-k8s-deployment).
+
 ## Structure of the solution
 
 ### Files and Directories
