@@ -1,5 +1,7 @@
 # PostGUI in Kubernetes
 
+> Take-home task from 2022, kept as submitted. It has known security flaws: a demo database password committed in values.yaml, secrets passed as environment variables, and no `securityContext`. My recent project, [secure-k8s-deployment](https://github.com/TsvetinaIvanova/secure-k8s-deployment), avoids them.
+
 ## Structure of the solution
 
 ### Files and Directories
